@@ -10,6 +10,7 @@ django = "~=4.2"
 black = "*"
 flake8 = "*"
 isort = "*"
+requests = "*"
 
 [requires]
 python_version = "3.11"
