@@ -126,8 +126,9 @@ def delete_pokemon(name: str) -> HttpResponse:
         del POKEMONS[name]
         return HttpResponse(f"<p>You have deleted {name} from the cache.</p>")
     except KeyError:
-        return HttpResponse(f"<p>There is no Pokemon named "
-                            f"{name} in the cache.</p>")
+        return HttpResponse(
+            f"<p>There is no Pokemon named " f"{name} in the cache.</p>"
+        )
 
 
 def get_all_from_cache(request) -> HttpResponse:
