@@ -1,6 +1,5 @@
 import sqlite3
 
-
 # ========================USERS=============
 connection_user = sqlite3.connect("users.db")
 cursor_user = connection_user.cursor()
