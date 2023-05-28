@@ -64,13 +64,13 @@ def _get_pokemon(name: str) -> Pokemon:
     Take pokemon from the cache or
     fetch it from the API and then save it to the cache.
     """
-    if name in POKEMONS:
+    try:
         pokemon, created_at = POKEMONS[name]
 
         if datetime.now() > created_at + TTL:
             del POKEMONS[name]
             return _get_pokemon(name)
-    else:
+    except KeyError:
         pokemon: Pokemon = get_pokemon_from_api(name)
         POKEMONS[name] = [pokemon, datetime.now()]
 
@@ -78,7 +78,7 @@ def _get_pokemon(name: str) -> Pokemon:
 
 
 @csrf_exempt
-def get_pokemon(request, name: str) -> HttpResponse:
+def manage_pokemon(request, name: str) -> HttpResponse:
     """
     Handles the GET and DELETE requests for retrieving or deleting a Pokemon.
     """
@@ -96,7 +96,7 @@ def get_pokemon(request, name: str) -> HttpResponse:
 
 
 @csrf_exempt
-def get_pokemon_for_mobile(request, name: str) -> HttpResponse:
+def manage_pokemon_for_mobile(request, name: str) -> HttpResponse:
     """
     Handles the GET and DELETE requests
     for retrieving or deleting a Pokemon for mobile applications.
@@ -148,7 +148,7 @@ def get_all_from_cache(request) -> HttpResponse:
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/pokemons/<str:name>/", get_pokemon),
-    path("api/pokemons/mobile/<str:name>/", get_pokemon_for_mobile),
+    path("api/pokemons/<str:name>/", manage_pokemon),
+    path("api/pokemons/mobile/<str:name>/", manage_pokemon_for_mobile),
     path("api/pokemons/", get_all_from_cache),
 ]
