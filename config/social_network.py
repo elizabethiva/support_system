@@ -1,7 +1,7 @@
 import sqlite3
 
 # ========================USERS=============
-connection_user = sqlite3.connect("users.db")
+connection_user = sqlite3.connect("social_network.db")
 cursor_user = connection_user.cursor()
 
 cursor_user.execute("DROP TABLE IF EXISTS users")
@@ -31,7 +31,7 @@ connection_user.close()
 
 
 # ========================PROFILES=============
-connection_profiles = sqlite3.connect("profiles.db")
+connection_profiles = sqlite3.connect("social_network.db")
 cursor_profiles = connection_profiles.cursor()
 
 cursor_profiles.execute("DROP TABLE IF EXISTS profiles")
@@ -54,7 +54,7 @@ connection_profiles.close()
 
 
 # ========================POSTS=============
-connection_posts = sqlite3.connect("posts.db")
+connection_posts = sqlite3.connect("social_network.db")
 cursor_posts = connection_posts.cursor()
 
 cursor_posts.execute("DROP TABLE IF EXISTS users")
@@ -77,7 +77,7 @@ connection_posts.close()
 
 
 # ========================COMMENTS=============
-connection_comments = sqlite3.connect("comments.db")
+connection_comments = sqlite3.connect("social_network.db")
 cursor_comments = connection_comments.cursor()
 
 cursor_comments.execute("DROP TABLE IF EXISTS users")
@@ -100,7 +100,7 @@ connection_comments.close()
 
 
 # ========================LIKES=============
-connection_likes = sqlite3.connect("likes.db")
+connection_likes = sqlite3.connect("social_network.db")
 cursor_likes = connection_likes.cursor()
 
 cursor_likes.execute("DROP TABLE IF EXISTS users")
