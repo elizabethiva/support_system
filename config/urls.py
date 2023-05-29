@@ -9,7 +9,6 @@ from django.http import HttpResponse
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 
-
 TTL = timedelta(seconds=5)
 
 
