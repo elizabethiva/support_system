@@ -10,6 +10,9 @@ from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 
 
+TTL = timedelta(seconds=5)
+
+
 def filtred_by_keys(source: dict, keys: list[str]) -> dict:
     """
     Filters the given dictionary source based on the provided list of keys
@@ -44,7 +47,7 @@ class Pokemon:
         return cls(**filtred_data)
 
 
-TTL = timedelta(seconds=5)
+# Storage pokemons
 POKEMONS: dict[{str}, list[Pokemon, datetime]] = {}
 
 
