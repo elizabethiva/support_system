@@ -2,10 +2,9 @@ import json
 from random import choice, randint
 from string import ascii_letters
 
+from core.models import Message, Request, User
 from django.http import HttpResponse
 from django.urls import path
-
-from core.models import Message, Request, User
 
 # *****************************************************
 # All roles are hardcoded instead of beeing used in the database
