@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from tickets.constans import TicketStatus
+from tickets.constants import TicketStatus
 
 
 class Ticket(models.Model):
