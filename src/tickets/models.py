@@ -32,9 +32,10 @@ class Message(models.Model):
         on_delete=models.RESTRICT,
         related_name="messages",
     )
-    request = models.ForeignKey(
+    ticket = models.ForeignKey(
         "tickets.Ticket", on_delete=models.RESTRICT, related_name="messages"
     )
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "messages"
