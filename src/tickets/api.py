@@ -1,13 +1,25 @@
 from django.db.models import Q
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from tickets.models import Ticket
-from tickets.permissions import IsOwner, RoleIsAdmin, RoleIsManager, RoleIsUser
-from tickets.serializers import TicketAssignSerializer, TicketSerializer
+from tickets.models import Message, Ticket
+from tickets.permissions import (
+    IsOwner,
+    RoleIsAdmin,
+    RoleIsManager,
+    RoleIsUser,
+    UserIsNewManager,
+)
+from tickets.serializers import (
+    MesssageSerializer,
+    TicketAssignSerializer,
+    TicketSerializer,
+)
 from users.constants import Role
 from users.models import User
 
@@ -46,7 +58,7 @@ class TicketAPIViewSet(ModelViewSet):
             case "take":
                 permission_classes = [RoleIsManager]
             case "reassign":
-                permission_classes = [RoleIsAdmin]
+                permission_classes = [RoleIsAdmin, UserIsNewManager]
             case _:
                 permission_classes = []
 
@@ -65,18 +77,12 @@ class TicketAPIViewSet(ModelViewSet):
 
     @action(detail=True, methods=["put"])
     def reassign(self, request, pk):
-        """Action method to reassign the ticket to a new manager
-        and validate the manager role"""
         ticket = self.get_object()
+        new_manager_id = request.data["new_manager"]
 
-        all_users = User.objects.all()
-        manager_id = request.data["manager_id"]
-        try:
-            all_users.get(Q(id=manager_id) & Q(role=Role.MANAGER))
-        except User.DoesNotExist:
-            raise ValidationError({"error": "Enter manager ID"})
-
-        serializer = TicketAssignSerializer(data={"manager_id": manager_id})
+        serializer = TicketAssignSerializer(
+            data={"manager_id": new_manager_id}
+        )
         serializer.is_valid()
         ticket = serializer.assign(ticket)
 
@@ -84,8 +90,38 @@ class TicketAPIViewSet(ModelViewSet):
 
 
 class MessageListCreateAPIView(ListCreateAPIView):
-    serializer_class = TicketSerializer
+    serializer_class = MesssageSerializer
+    lookup_field = "ticket_id"
 
     def get_queryset(self):
-        # TODO: Start from here
-        raise NotImplementedError
+        ticket = get_object_or_404(
+            Ticket.objects.all(), id=self.kwargs[self.lookup_field]
+        )
+        if (
+            ticket.user != self.request.user
+            and ticket.manager != self.request.user
+        ):
+            raise Http404
+
+        messages = Message.objects.filter(
+            ticket_id=self.kwargs[self.lookup_field]
+        )
+        return messages
+
+    @staticmethod
+    def get_ticket(user: User, ticket_id: int) -> Ticket:
+        """Get tickets for current user."""
+
+        tickets = Ticket.objects.filter(Q(user=user) | Q(manager=user))
+        return get_object_or_404(tickets, id=ticket_id)
+
+    def post(self, request, ticket_id: int):
+        self.get_ticket(request.user, ticket_id)
+        payload = {"text": request.data["text"], "ticket": ticket_id}
+        serializer = self.get_serializer(data=payload)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
