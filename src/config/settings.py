@@ -9,8 +9,9 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
 from datetime import timedelta
+from distutils.util import strtobool
+from os import getenv
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,10 +22,11 @@ ROOT_DIR = SCR_DIR.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-o2pv@*9pbe#u4)udf0)k8beha$jx3orzda0(-=ox$xvhj&@ezk"  # noqa: E501
+SECRET_KEY = getenv("DJANGO_SECRET_KEY", default="invalid")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = strtobool(getenv("DJANGO_DEBUG", default="false"))
 
 ALLOWED_HOSTS = ["*"]
 
@@ -135,7 +137,7 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-POKEAPI_BASE_URL = "https://pokeapi.co/api/v2/pokemon"
+POKEAPI_BASE_URL = getenv("POKEAPI_BASE_URL", default="invalid")
 
 AUTH_USER_MODEL = "users.User"
 
@@ -161,10 +163,14 @@ if DEBUG is True:
     )
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        seconds=int(getenv("JWT_ACCESS_TOKEN_LIFETIME", default=100))
+    ),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 
-CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_BROKER_URL = getenv(
+    "CELERY_BROKER_URL", default="redis://broker:6379/0"
+)
